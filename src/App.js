@@ -52,12 +52,49 @@ function App() {
   useEffect(() => {
     authListener();
   }, [user]);
+
+  const track = () => {
+    
+    finder();
+    setInterval(()=>{
+      finder();    
+    },5000);
+  }
+  let [latitude, setLatitude] = useState('');
+  let [longitude, setLongitude] = useState('');
+  let [accuracy, setAccuracy] = useState('');
+  const finder = () => {
+    if(!navigator.geolocation){
+      console.log("your browser doesnot support geolocation feature!");
+    }
+    else{
+      navigator.geolocation.getCurrentPosition(getPosition);
+    }
+    function getPosition(position){
+        latitude = position.coords.latitude;
+        longitude = position.coords.longitude;
+        accuracy = position.coords.accuracy;
+        let username = user.email.split("@"); 
+        username = username[0].split('.');
+        // console.log(fire.database().ref());
+        
+        fire.database().ref(username[0]).update({
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: accuracy
+        });
+    }
+  }
+  
+  
   
 
   return (
     <>
     { user ? (
-        <Tracker />
+        <Tracker 
+          track={track}
+        />
       ):(
         <Logsign 
           email={email} 
